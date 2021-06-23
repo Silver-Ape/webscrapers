@@ -1,6 +1,27 @@
 from papers_with_code_scraper import PapersScraper
 
-# testing PaperScraper
-paper = PapersScraper('https://paperswithcode.com/latest')
-latest_articles = paper.get_latest()
-print(latest_articles)
+
+# testing PaperScraper.refresh_latest()
+def test_paperscraper_refresh_latest():
+    paper = PapersScraper('https://paperswithcode.com/latest')
+    paper.refresh_latest()
+    print(paper.get_recent())
+
+
+# testing PaperScraper._paper_info()
+def test_paperscraper_paper_info():
+    paper = PapersScraper('https://paperswithcode.com/latest')
+    paper.refresh_latest()
+    paper._paper_info(
+        'https://paperswithcode.com/paper/a-probabilistic-representation-of-dnns')
+
+# testing PaperScraper.pull_paper_info
+def test_paperscraper_pull_paper_info():
+    paper = PapersScraper('https://paperswithcode.com/latest')
+    print(paper.pull_paper_info())
+
+
+if __name__ == '__main__':
+    # test_paperscraper_refresh_latest()
+    # test_paperscraper_paper_info()
+    test_paperscraper_pull_paper_info()
