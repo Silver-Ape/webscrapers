@@ -10,10 +10,10 @@ class PapersScraper:
         self.recent = []
 
     def get_recent(self):
-        # self.refresh_latest()
+        self._refresh_latest()
         return self.recent
 
-    def refresh_latest(self):
+    def _refresh_latest(self):
         try:
             if self.url != 'https://paperswithcode.com/latest':
                 raise BrokenFormat
@@ -64,7 +64,7 @@ class PapersScraper:
             print('Failed to request page')
 
     def pull_paper_info(self):
-        self.refresh_latest()
+        self._refresh_latest()
         json_outputs = {}
         for link in self.get_recent():
             info = self._paper_info(link)
