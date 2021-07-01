@@ -1,7 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-import json
-import string
 
 
 class PapersScraper:
@@ -38,30 +36,31 @@ class PapersScraper:
             Date ,authors ,publisher, title and number of citations
             :return:
         """
-        try:
-            page = requests.get(link)
-            soup = BeautifulSoup(page.text, 'html.parser')
-            author_span = soup.find_all('span', {"class": "author-span"})
 
-            name = soup.find('h2').string.rstrip().lstrip()
-            date = author_span[0].string
-            authors = ''
-            for i in range(1, len(author_span)):
-                authors += author_span[i].string.lstrip().rstrip() + '/'
+        page = requests.get(link)
+        soup = BeautifulSoup(page.text, 'html.parser')
+        author_span = soup.find_all('span', {"class": "author-span"})
 
-            paper_abstract = soup.find('div', {'class': 'paper-abstract'}).find('p').text.lstrip().rstrip().replace('read more', '')
-            # paper_abstract += soup.find('div', {'class': 'paper-abstract'}).find('span', {'class': 'reverse-hidden-element'}).text.lstrip().rstrip()
-            print(paper_abstract)
+        name = soup.find('h2').string.rstrip().lstrip()
+        date = author_span[0].string
+        authors = ''
+        for i in range(1, len(author_span)):
+            authors += author_span[i].string.lstrip().rstrip() + '/'
 
-            return {
-                'name': name,
-                'date': date,
-                'authors': authors,
-                'abstract': paper_abstract
-            }
+        paper_abstract = soup.find('div', {'class': 'paper-abstract'}).find('p').text.lstrip().rstrip().replace('read more', '')
+        # paper_abstract += soup.find('div', {'class': 'paper-abstract'}).find('span', {'class': 'reverse-hidden-element'}).text.lstrip().rstrip()
+        # print(paper_abstract)
 
-        except:
-            print('Failed to request page')
+        pdf = soup.find('div', {'class': 'paper-abstract'}).find('a', {"class": "badge badge-light"})['href']
+        return {
+            'name': name,
+            'date': date,
+            'authors': authors,
+            'abstract': paper_abstract,
+            'pdf': pdf
+        }
+
+
 
     def pull_paper_info(self):
         self._refresh_latest()
@@ -69,8 +68,8 @@ class PapersScraper:
         for link in self.get_recent():
             info = self._paper_info(link)
             json_outputs[link] = info
-
-        return json.dumps(json_outputs)
+        print(json_outputs)
+        return json_outputs
 
 
 # Exception Class
