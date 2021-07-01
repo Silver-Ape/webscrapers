@@ -4,7 +4,8 @@ from scraper_base import BaseScraper
 from exceptions import BrokenFormat
 
 
-class PapersScraper(BaseScraper):
+class arXivScraper(BaseScraper):
+
     def __init__(self, url):
         # super().__init__(url)
         self.url = url
@@ -16,18 +17,20 @@ class PapersScraper(BaseScraper):
 
     def _refresh_latest(self):
         try:
-            if self.url != 'https://paperswithcode.com/latest':
+            if self.url != 'https://arxiv.org/list/cs.AI/pastweek?show=100' and self.url != 'https://arxiv.org/list/stat.ML/pastweek?show=100':
+                print(self.url)
                 raise BrokenFormat
 
             addOns = []
             page = requests.get(self.url)
             soup = BeautifulSoup(page.text, 'html.parser')
-            rows = soup.find_all('div', {"class": "row infinite-item item"})
+            rows = soup.find('div', {"id": "dlpage"}).find('dl').find_all('dt')
             for children in rows:
                 addOns.append(
-                    'https://paperswithcode.com' + children.findChild("a")[
-                        'href'])
-
+                    'https://arxiv.org/' +
+                    children.find('span', {'class': 'list-identifier'}).find(
+                        'a')['href'])
+                # print('https://arxiv.org/' + children.find('span', {'class': 'list-identifier'}).find('a')['href'])
             self.recent = addOns
             print('refreshed')
 
@@ -35,27 +38,20 @@ class PapersScraper(BaseScraper):
             print("Incorrect link for function")
 
     def _paper_info(self, link):
-        """
-            Date ,authors ,publisher, title and number of citations
-            :return:
-        """
-
         page = requests.get(link)
         soup = BeautifulSoup(page.text, 'html.parser')
 
-        author_span = soup.find_all('span', {"class": "author-span"})
-
-        name = soup.find('h2').string.rstrip().lstrip()
-        date = author_span[0].string
+        author_span = soup.find_all('div', {"class": "authors"})[0].find_all(
+            'a')
         authors = ''
-        for i in range(1, len(author_span)):
-            authors += author_span[i].string.lstrip().rstrip() + '/'
+        for i in author_span:
+            authors += i.string + '/'
 
-        paper_abstract = soup.find('div', {'class': 'paper-abstract'}).find('p').text.lstrip().rstrip().replace('read more', '')
-        # paper_abstract += soup.find('div', {'class': 'paper-abstract'}).find('span', {'class': 'reverse-hidden-element'}).text.lstrip().rstrip()
-        # print(paper_abstract)
+        name = soup.find('h1', {"class": "title mathjax"}).text.lstrip("Title:")
+        date = soup.find('div', {'class': "dateline"}).string.lstrip().rstrip(']')[14:]
+        paper_abstract = soup.find('blockquote', {"class": "abstract mathjax"}).text[len('Abstract:   '):]
+        pdf = 'https://arxiv.org/' + soup.find('a', {"class": "abs-button download-pdf"})['href']
 
-        pdf = soup.find('div', {'class': 'paper-abstract'}).find('a', {"class": "badge badge-light"})['href']
         return {
             'name': name,
             'date': date,
@@ -70,7 +66,5 @@ class PapersScraper(BaseScraper):
         for link in self.get_recent():
             info = self._paper_info(link)
             json_outputs[link] = info
-        # print(json_outputs)
+        print(json_outputs)
         return json_outputs
-
-
