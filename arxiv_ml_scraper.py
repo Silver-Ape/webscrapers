@@ -66,5 +66,5 @@ class arXivScraper(BaseScraper):
         for link in self.get_recent():
             info = self._paper_info(link)
             json_outputs[link] = info
-        print(json_outputs)
+        # print(json_outputs)
         return json_outputs

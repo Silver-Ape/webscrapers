@@ -48,8 +48,9 @@ class PapersScraper(BaseScraper):
         name = soup.find('h2').string.rstrip().lstrip()
         date = author_span[0].string
         authors = ''
+        # print(author_span[1].string)
         for i in range(1, len(author_span)):
-            authors += author_span[i].string.lstrip().rstrip() + '/'
+            authors += author_span[i].text.lstrip().rstrip() + '/'
 
         paper_abstract = soup.find('div', {'class': 'paper-abstract'}).find('p').text.lstrip().rstrip().replace('read more', '')
         # paper_abstract += soup.find('div', {'class': 'paper-abstract'}).find('span', {'class': 'reverse-hidden-element'}).text.lstrip().rstrip()
