@@ -3,7 +3,8 @@ from bs4 import BeautifulSoup
 
 class BaseScraper:
     def __init__(self, url):
-        pass
+        self.url = url
+        self.recent = []
 
     def get_recent(self):
         pass

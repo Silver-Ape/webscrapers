@@ -6,9 +6,9 @@ from exceptions import BrokenFormat
 
 class PapersScraper(BaseScraper):
     def __init__(self, url):
-        # super().__init__(url)
-        self.url = url
-        self.recent = []
+        super().__init__(url)
+        # self.url = url
+        # self.recent = []
 
     def get_recent(self):
         self._refresh_latest()
